@@ -1,0 +1,32 @@
+# 使用 OpenJDK 17 作為基礎映像
+FROM openjdk:17-jdk-slim
+
+# 設定工作目錄
+WORKDIR /app
+
+# 複製 Maven 配置檔案
+COPY pom.xml .
+COPY .mvn .mvn
+COPY mvnw .
+
+# 下載依賴（利用 Docker 層快取）
+RUN ./mvnw dependency:go-offline -B
+
+# 複製原始碼
+COPY src ./src
+
+# 建置應用程式
+RUN ./mvnw clean package -DskipTests
+
+# 建立資料庫目錄
+RUN mkdir -p /app/data
+
+# 暴露埠號
+EXPOSE 8080
+
+# 設定環境變數
+ENV SPRING_PROFILES_ACTIVE=prod
+ENV DATABASE_PATH=/app/data/social_media.db
+
+# 啟動應用程式
+CMD ["java", "-jar", "target/social-media-0.0.1-SNAPSHOT.jar"]

@@ -1,0 +1,170 @@
+# 社群媒體平台應用程式配置
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  application:
+    name: social-media-platform
+  
+  # 資料庫配置 (H2)
+  datasource:
+    url: jdbc:h2:file:./data/social_media;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # H2 控制台配置
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # JPA/Hibernate 配置
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  
+  # SQL 初始化配置
+  sql:
+    init:
+      schema-locations: classpath:database/schema.sql
+      data-locations: classpath:database/sample_data.sql
+      mode: never  # 讓 Hibernate 處理資料庫結構
+      continue-on-error: false
+  
+  # Jackson JSON 配置
+  jackson:
+    time-zone: Asia/Taipei
+    date-format: yyyy-MM-dd HH:mm:ss
+    property-naming-strategy: SNAKE_CASE
+    default-property-inclusion: NON_NULL
+  
+  # 檔案上傳配置
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+      file-size-threshold: 2KB
+
+# JWT 配置
+jwt:
+  secret: c29jaWFsLW1lZGlhLXBsYXRmb3JtLWVzdW4tYmFuay1zZWNyZXQta2V5LTIwMjQ=
+  expiration: 86400000  # 24 hours in milliseconds
+  refresh-expiration: 604800000  # 7 days in milliseconds
+
+# API 文件配置
+springdoc:
+  api-docs:
+    path: /docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  info:
+    title: 社群媒體平台 API
+    description: 玉山銀行後端工程師實作題 - RESTful API 文件
+    version: 1.0.0
+    contact:
+      name: 開發團隊
+      email: developer@esun.com
+
+# 日誌配置
+logging:
+  level:
+    com.esun.socialmedia: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/social-media-platform.log
+
+# 管理端點配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# 自定義應用程式配置
+app:
+  upload:
+    dir: ./uploads
+    max-size: 10485760  # 10MB
+    allowed-types: jpg,jpeg,png,gif
+  
+  cors:
+    allowed-origins: http://localhost:3000,http://localhost:8081
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+    allowed-headers: "*"
+    allow-credentials: true
+    max-age: 3600
+
+---
+# 開發環境配置
+spring:
+  config:
+    activate:
+      on-profile: dev
+  sql:
+    init:
+      mode: always
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+logging:
+  level:
+    root: INFO
+    com.esun.socialmedia: DEBUG
+
+---
+# 測試環境配置
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+
+---
+# 生產環境配置
+spring:
+  config:
+    activate:
+      on-profile: prod
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  sql:
+    init:
+      mode: never
+
+logging:
+  level:
+    root: WARN
+    com.esun.socialmedia: INFO

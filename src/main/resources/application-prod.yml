@@ -1,0 +1,79 @@
+spring:
+  application:
+    name: social-media
+  
+  # 資料庫配置
+  datasource:
+    url: jdbc:sqlite:${DATABASE_PATH:/app/data/social_media.db}
+    driver-class-name: org.sqlite.JDBC
+    
+  # JPA 配置
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.community.dialect.SQLiteDialect
+        format_sql: false
+        
+  # 日誌配置
+  logging:
+    level:
+      com.esun.socialmedia: INFO
+      org.springframework.security: WARN
+      org.hibernate: WARN
+    pattern:
+      console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+      file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file:
+      name: /app/logs/social-media.log
+      max-size: 10MB
+      max-history: 30
+
+# 伺服器配置
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 1024
+
+# JWT 配置
+jwt:
+  secret: ${JWT_SECRET:your-super-secret-jwt-key-change-this-in-production}
+  expiration: ${JWT_EXPIRATION:86400000}  # 24 小時
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}  # 7 天
+
+# CORS 配置
+cors:
+  allowed-origins: 
+    - http://localhost:3000
+    - http://localhost:80
+    - http://localhost
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: "*"
+  allow-credentials: true
+
+# Actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    env:
+      enabled: true
+
+# 應用程式資訊
+info:
+  app:
+    name: 玉山銀行社群媒體平台
+    description: 基於 Spring Boot 和 Vue.js 的社群媒體應用程式
+    version: 1.0.0
+    developer: E.SUN Bank Development Team
